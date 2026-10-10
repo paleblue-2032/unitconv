@@ -3,6 +3,7 @@ name = "uconv"
 version = "0.1.0"
 edition = "2021"
 description = "SI接頭辞と単位を爆速で変換する小さな CLI"
+license = "MIT"
 
 [[bin]]
 name = "uconv"

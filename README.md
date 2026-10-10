@@ -167,3 +167,7 @@ Blazor 版は JavaScript interop 経由で wasm として、それぞれ同じ�
 - wasm / `bin` / `obj` / `publish` などのビルド生成物は `.gitignore` 済みです
   （`blazor/wwwroot/unitconv_core.wasm` は生成物なのでコミットしていません。上の手順でビルドしてください）。
 - Blazor 版をサブパスに置く場合は `blazor/wwwroot/index.html` の `<base href="...">` を合わせてください。
+
+## ライセンス
+
+MIT（[LICENSE](LICENSE)）
