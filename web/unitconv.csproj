@@ -9,4 +9,13 @@
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
 
+  <!-- ビルド時に Rust コアを cdylib として作り、出力フォルダへコピーする。
+       C# 側はこれを P/Invoke で読み込む（処理は全部 Rust）。 -->
+  <Target Name="BuildRustCore" AfterTargets="Build">
+    <Exec Command="cargo build --release --manifest-path &quot;$(MSBuildProjectDirectory)/../core/Cargo.toml&quot;" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)/../target/release/libunitconv_core.so"
+          DestinationFolder="$(OutDir)"
+          SkipUnchangedFiles="true" />
+  </Target>
+
 </Project>

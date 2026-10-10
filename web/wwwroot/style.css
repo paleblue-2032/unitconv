@@ -57,7 +57,19 @@ input[type="text"] {
 }
 input[type="text"]:focus { outline: none; border-color: var(--accent); }
 #value, #svalue { width: 130px; }
-.arrow { color: var(--muted); font-size: 20px; padding-bottom: 8px; }
+.swap {
+  align-self: flex-end;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 18px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.swap:hover { border-color: var(--accent); color: var(--accent); }
 
 .result {
   display: block;

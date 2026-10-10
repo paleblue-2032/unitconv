@@ -8,11 +8,23 @@ function escapeHtml(text) {
   ));
 }
 
+const SUPERSCRIPT = {
+  '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴',
+  '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹',
+  '-': '⁻', '+': '⁺',
+};
+
+function superscript(n) {
+  return String(n).split('').map((c) => SUPERSCRIPT[c] ?? c).join('');
+}
+
 function fmtNum(x) {
   if (x === 0) return '0';
   const a = Math.abs(x);
   if (a >= 1e-4 && a < 1e7) return String(Number(x.toFixed(10)));
-  return x.toExponential(6).replace(/\.?0+e/, 'e');
+  const [mantissa, exponent] = x.toExponential(6).split('e');
+  const m = mantissa.replace(/\.?0+$/, '') || '0';
+  return `${m}×10${superscript(parseInt(exponent, 10))}`;
 }
 
 async function jget(url) {
@@ -85,10 +97,11 @@ function buildPrefixTable(prefixes) {
   wrap.innerHTML = '';
   prefixes.forEach((p) => {
     const exp = powerOfTen(p.mult);
-    const mult = exp === null ? String(p.mult) : `10^${exp}`;
+    const mult = exp === null ? String(p.mult) : `10${superscript(exp)}`;
     const row = document.createElement('div');
     row.className = 'row';
-    row.innerHTML = `<span class="name">${escapeHtml(p.name)}</span><span class="sym">${escapeHtml(p.sym)}</span><span>${mult}</span>`;
+    const symbol = p.symbol ?? p.sym ?? '';
+    row.innerHTML = `<span class="name">${escapeHtml(p.name)}</span><span class="sym">${escapeHtml(symbol)}</span><span>${mult}</span>`;
     wrap.appendChild(row);
   });
 }
@@ -137,7 +150,7 @@ async function init() {
   const prefixNames = new Set();
   prefixes.forEach((p) => {
     prefixNames.add(p.name);
-    p.sym.split('/').forEach((s) => prefixNames.add(s));
+    String(p.symbol ?? p.sym ?? '').split('/').forEach((s) => { if (s) prefixNames.add(s); });
   });
   const prefixList = $('#prefixes');
   [...prefixNames].sort().forEach((n) => prefixList.appendChild(new Option(n)));
@@ -149,6 +162,15 @@ async function init() {
   ['#value', '#from', '#to'].forEach((sel) => $(sel).addEventListener('input', onChange));
   const onScale = debounce(runScale, 120);
   ['#svalue', '#sfrom', '#sto'].forEach((sel) => $(sel).addEventListener('input', onScale));
+
+  const swap = (aSel, bSel, rerun) => {
+    const a = $(aSel);
+    const b = $(bSel);
+    [a.value, b.value] = [b.value, a.value];
+    rerun();
+  };
+  $('#swapConvert').addEventListener('click', () => swap('#from', '#to', runConvert));
+  $('#swapScale').addEventListener('click', () => swap('#sfrom', '#sto', runScale));
 
   document.querySelectorAll('.chip').forEach((chip) =>
     chip.addEventListener('click', () => {

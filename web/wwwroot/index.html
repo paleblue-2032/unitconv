@@ -18,7 +18,7 @@
     <div class="grid">
       <label>値<input id="value" type="text" inputmode="decimal" value="5" autocomplete="off"></label>
       <label>変換前<input id="from" type="text" list="units" value="km" autocomplete="off"></label>
-      <span class="arrow">→</span>
+      <button type="button" class="swap" id="swapConvert" title="変換前と変換後を入れ替え" aria-label="入れ替え">⇄</button>
       <label>変換後<input id="to" type="text" list="units" value="mile" autocomplete="off"></label>
     </div>
     <output id="result" class="result">—</output>
@@ -39,12 +39,12 @@
     <div class="grid">
       <label>値<input id="svalue" type="text" inputmode="decimal" value="5" autocomplete="off"></label>
       <label>変換前<input id="sfrom" type="text" list="prefixes" value="m" autocomplete="off"></label>
-      <span class="arrow">→</span>
+      <button type="button" class="swap" id="swapScale" title="変換前と変換後を入れ替え" aria-label="入れ替え">⇄</button>
       <label>変換後<input id="sto" type="text" list="prefixes" value="p" autocomplete="off"></label>
     </div>
     <output id="sresult" class="result">—</output>
     <p id="serror" class="error"></p>
-    <p class="muted small">ミリ→ピコ なら 5 → 5e9。接頭辞だけをスケーリングします。</p>
+    <p class="muted small">ミリ→ピコ なら 5 → 5×10⁹。接頭辞だけをスケーリングします。</p>
   </section>
 
   <details class="ref">

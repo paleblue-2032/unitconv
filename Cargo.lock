@@ -5,3 +5,10 @@ version = 4
 [[package]]
 name = "uconv"
 version = "0.1.0"
+dependencies = [
+ "unitconv-core",
+]
+
+[[package]]
+name = "unitconv-core"
+version = "0.1.0"

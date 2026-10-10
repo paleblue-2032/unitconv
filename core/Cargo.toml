@@ -1,0 +1,9 @@
+[package]
+name = "unitconv-core"
+version = "0.1.0"
+edition = "2021"
+description = "単位と SI 接頭辞の変換コア（CLI と C# GUI が共用する）"
+
+[lib]
+name = "unitconv_core"
+crate-type = ["lib", "cdylib"]

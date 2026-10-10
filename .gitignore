@@ -1,5 +1,5 @@
 # Rust
-cli/target/
+/target/
 
 # .NET
 web/bin/
