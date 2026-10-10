@@ -8,5 +8,8 @@ blazor/bin/
 blazor/obj/
 blazor/publish/
 
+# Blazor が読み込む wasm は生成物（cargo build --target wasm32-unknown-unknown で作る）
+blazor/wwwroot/unitconv_core.wasm
+
 # その他
 result
