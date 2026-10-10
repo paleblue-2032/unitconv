@@ -73,3 +73,23 @@ pub extern "C" fn unitconv_free(ptr: *mut c_char) {
         drop(CString::from_raw(ptr));
     }
 }
+
+/// wasm 用: JS が入力文字列を書き込むためのバッファを確保する（NUL 終端ぶん込み）。
+#[no_mangle]
+pub extern "C" fn unitconv_alloc(len: usize) -> *mut u8 {
+    let mut buffer = Vec::<u8>::with_capacity(len + 1);
+    let pointer = buffer.as_mut_ptr();
+    std::mem::forget(buffer);
+    pointer
+}
+
+/// `unitconv_alloc` で確保したバッファを解放する。
+#[no_mangle]
+pub extern "C" fn unitconv_dealloc(pointer: *mut u8, len: usize) {
+    if pointer.is_null() {
+        return;
+    }
+    unsafe {
+        let _ = Vec::from_raw_parts(pointer, 0, len + 1);
+    }
+}

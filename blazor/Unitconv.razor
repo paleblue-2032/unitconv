@@ -1,0 +1,225 @@
+@namespace UnitconvBlazor
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<div class="wrap">
+  <header class="top">
+    <h1>unitconv</h1>
+    <p class="sub">単位と SI 接頭辞を、パッと変換。計算は Rust コア（wasm）が行います。</p>
+  </header>
+
+  <section class="panel">
+    <div class="grid">
+      <label>値<input type="text" @bind="value" @bind:event="oninput" @bind:after="RunConvert" /></label>
+      <label>変換前<input type="text" list="units" @bind="from" @bind:event="oninput" @bind:after="RunConvert" /></label>
+      <button type="button" class="swap" title="変換前と変換後を入れ替え" @onclick="SwapConvert">⇄</button>
+      <label>変換後<input type="text" list="units" @bind="to" @bind:event="oninput" @bind:after="RunConvert" /></label>
+    </div>
+    <output class="result">
+      @if (result is { Ok: true })
+      {
+        <text>@FmtNum(result.Value ?? 0) <span class="u">@result.Unit</span></text>
+        @if (result.Pretty is not null)
+        {
+          <span class="pretty">≈ @result.Pretty</span>
+        }
+      }
+      else
+      {
+        <text>—</text>
+      }
+    </output>
+    <p class="error">@result?.Error</p>
+  </section>
+
+  <section class="panel">
+    <h2>接頭辞スケーリング</h2>
+    <div class="grid">
+      <label>値<input type="text" @bind="svalue" @bind:event="oninput" @bind:after="RunScale" /></label>
+      <label>変換前<input type="text" list="prefixes" @bind="sfrom" @bind:event="oninput" @bind:after="RunScale" /></label>
+      <button type="button" class="swap" title="変換前と変換後を入れ替え" @onclick="SwapScale">⇄</button>
+      <label>変換後<input type="text" list="prefixes" @bind="sto" @bind:event="oninput" @bind:after="RunScale" /></label>
+    </div>
+    <output class="result">
+      @if (sresult is { Ok: true })
+      {
+        <text>@FmtNum(sresult.Value ?? 0)</text>
+      }
+      else
+      {
+        <text>—</text>
+      }
+    </output>
+    <p class="error">@sresult?.Error</p>
+  </section>
+
+  <details class="ref">
+    <summary>接頭辞の一覧</summary>
+    <div class="table">
+      @foreach (PrefixInfo p in prefixes)
+      {
+        <div class="row"><span class="name">@p.Name</span><span class="sym">@p.Symbol</span><span>@MultLabel(p.Mult)</span></div>
+      }
+    </div>
+  </details>
+
+  <details class="ref">
+    <summary>単位の一覧</summary>
+    <div class="units">
+      @foreach (var group in units.GroupBy(u => u.Group))
+      {
+        <h3>@group.Key</h3>
+        <div class="chips">
+          @foreach (UnitInfo u in group)
+          {
+            <span class="u" title="@string.Join(", ", u.Aliases)">@u.Name@(u.Prefixable ? "*" : "")</span>
+          }
+        </div>
+      }
+    </div>
+  </details>
+</div>
+
+<datalist id="units">
+  @foreach (string name in unitNames)
+  {
+    <option value="@name"></option>
+  }
+</datalist>
+<datalist id="prefixes">
+  @foreach (string name in prefixNames)
+  {
+    <option value="@name"></option>
+  }
+</datalist>
+
+@code {
+  private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
+
+  private IJSObjectReference? module;
+  private string value = "5";
+  private string from = "km";
+  private string to = "mile";
+  private ConvertResult? result;
+
+  private string svalue = "5";
+  private string sfrom = "m";
+  private string sto = "p";
+  private ConvertResult? sresult;
+
+  private List<PrefixInfo> prefixes = new();
+  private List<UnitInfo> units = new();
+  private List<string> unitNames = new();
+  private List<string> prefixNames = new();
+
+  protected override async Task OnInitializedAsync()
+  {
+    module = await JS.InvokeAsync<IJSObjectReference>("import", "./unitconv.js");
+    await module.InvokeVoidAsync("init", "./unitconv_core.wasm");
+
+    prefixes = Parse<List<PrefixInfo>>(await module.InvokeAsync<string>("prefixes")) ?? new();
+    units = Parse<List<UnitInfo>>(await module.InvokeAsync<string>("units")) ?? new();
+
+    var names = new SortedSet<string>();
+    foreach (UnitInfo u in units)
+    {
+      names.Add(u.Name);
+      foreach (string alias in u.Aliases) names.Add(alias);
+    }
+    foreach (string extra in new[] { "km", "cm", "mm", "μm", "nm", "ms", "μs", "ns", "GHz", "MHz", "kHz", "kB", "MB", "GB", "TB", "KiB", "MiB", "GiB", "kJ", "kcal", "keV", "MeV", "mV", "kPa", "degC", "degF", "K" })
+    {
+      names.Add(extra);
+    }
+    unitNames = names.ToList();
+
+    var prefNames = new SortedSet<string>();
+    foreach (PrefixInfo p in prefixes)
+    {
+      prefNames.Add(p.Name);
+      foreach (string symbol in p.Symbol.Split('/')) prefNames.Add(symbol);
+    }
+    prefixNames = prefNames.ToList();
+
+    await RunConvert();
+    await RunScale();
+  }
+
+  private async Task RunConvert()
+  {
+    if (module is null) return;
+    result = Parse<ConvertResult>(await module.InvokeAsync<string>("convert", value, from, to));
+  }
+
+  private async Task RunScale()
+  {
+    if (module is null) return;
+    sresult = Parse<ConvertResult>(await module.InvokeAsync<string>("scale", svalue, sfrom, sto));
+  }
+
+  private async Task SwapConvert()
+  {
+    (from, to) = (to, from);
+    await RunConvert();
+  }
+
+  private async Task SwapScale()
+  {
+    (sfrom, sto) = (sto, sfrom);
+    await RunScale();
+  }
+
+  private static T? Parse<T>(string json)
+  {
+    try
+    {
+      return JsonSerializer.Deserialize<T>(json, JsonOptions);
+    }
+    catch
+    {
+      return default;
+    }
+  }
+
+  private static string FmtNum(double x)
+  {
+    if (x == 0) return "0";
+    double a = Math.Abs(x);
+    if (a >= 1e-4 && a < 1e7) return x.ToString("0.##########", System.Globalization.CultureInfo.InvariantCulture);
+    string[] parts = x.ToString("0.######e+0", System.Globalization.CultureInfo.InvariantCulture).Split('e');
+    string mantissa = parts[0];
+    int exponent = int.Parse(parts[1], System.Globalization.CultureInfo.InvariantCulture);
+    return mantissa + "×10" + Superscript(exponent);
+  }
+
+  private static string MultLabel(double mult)
+  {
+    double exp = Math.Log10(mult);
+    int rounded = (int)Math.Round(exp);
+    if (Math.Abs(Math.Pow(10, rounded) - mult) / mult < 1e-9) return "10" + Superscript(rounded);
+    return mult.ToString("0.############", System.Globalization.CultureInfo.InvariantCulture);
+  }
+
+  private static string Superscript(int n)
+  {
+    const string digits = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+    string sign = n < 0 ? "⁻" : "";
+    var result = new System.Text.StringBuilder(sign);
+    foreach (char c in Math.Abs(n).ToString())
+    {
+      result.Append(digits[c - '0']);
+    }
+    return result.ToString();
+  }
+
+  public async ValueTask DisposeAsync()
+  {
+    if (module is not null)
+    {
+      await module.DisposeAsync();
+    }
+  }
+
+  private sealed record ConvertResult(bool Ok, double? Value, string? Unit, string? Pretty, string? Error);
+  private sealed record PrefixInfo(string Name, string Symbol, double Mult);
+  private sealed record UnitInfo(string Name, string Group, bool Prefixable, string[] Aliases);
+}

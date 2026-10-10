@@ -4,6 +4,9 @@
 # .NET
 web/bin/
 web/obj/
+blazor/bin/
+blazor/obj/
+blazor/publish/
 
 # その他
 result

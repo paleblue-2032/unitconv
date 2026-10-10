@@ -1,0 +1,4 @@
+# WebAssembly 向けには wasm-ld（lld）をリンカに使う。
+# lld は nix-shell -p lld などで用意する。
+[target.wasm32-unknown-unknown]
+linker = "wasm-ld"
