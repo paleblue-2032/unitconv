@@ -20,6 +20,17 @@ body {
   font: 15px/1.6 system-ui, -apple-system, "Segoe UI", "Noto Sans JP", sans-serif;
 }
 
+.back {
+  position: fixed;
+  top: 16px;
+  left: 22px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 14px;
+  z-index: 10;
+}
+.back:hover { color: var(--accent); }
+
 .wrap {
   max-width: 860px;
   margin: 0 auto;
