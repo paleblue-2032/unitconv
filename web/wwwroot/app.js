@@ -154,15 +154,20 @@ async function init() {
   const unitList = $('#units');
   [...unitNames].sort().forEach((n) => unitList.appendChild(new Option(n)));
 
-  // 接頭辞もアルファベット順。micro はギリシャ文字に名前を添えて μ(micro)。
-  const prefixNames = new Set();
-  prefixes.forEach((p) => {
-    const symbol = p.symbol ?? p.sym ?? '';
-    prefixNames.add(p.name === 'micro' ? `${symbol}(${p.name})` : symbol);
-    prefixNames.add(p.name);
-  });
+  // 接頭辞は「記号(名前)」で 1 件ずつ、記号のアルファベット順に。
   const prefixList = $('#prefixes');
-  [...prefixNames].sort().forEach((n) => prefixList.appendChild(new Option(n)));
+  prefixes
+    .map((p) => {
+      const symbol = p.symbol ?? p.sym ?? '';
+      return { symbol, text: `${symbol}(${p.name})` };
+    })
+    .sort((a, b) => {
+      const au = a.symbol.toUpperCase();
+      const bu = b.symbol.toUpperCase();
+      if (au !== bu) return au < bu ? -1 : 1;
+      return a.symbol < b.symbol ? -1 : a.symbol > b.symbol ? 1 : 0;
+    })
+    .forEach((e) => prefixList.appendChild(new Option(e.text)));
 
   buildPrefixTable(prefixes);
   buildUnitTable(units);
