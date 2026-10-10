@@ -3,8 +3,6 @@
 単位と SI 接頭辞（m, μ, p, k, M…）をパッと変換するツールです。
 高速な Rust コアを、CLI と C#（ASP.NET Core）の Web UI から使えます。
 
-![unitconv の画面](docs/screenshot.png)
-
 ## 特徴
 
 - **SI 接頭辞をそのまま扱える** — `km` `GHz` `μm` `ms` `kB` `GiB` のように書けます。
