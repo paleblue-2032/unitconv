@@ -4,8 +4,6 @@
 変換ロジックは **Rust コア 1 つ**にまとめてあり、**CLI** と **2 種類の Web UI**
 （サーバ型 / クライアント完結）から同じコアを使います。
 
-**Web 版（Blazor WASM）:** <https://kanon-server.com/others/unitconv/> — ブラウザだけで動きます。
-
 ```sh
 uconv 5 km mile         # 3.1068559612 mile
 uconv 3.2 GHz MHz       # 3200 MHz   （≈ 3.2 GHz）
@@ -79,6 +77,7 @@ dotnet run                   # → http://127.0.0.1:5080
 ### Web（Blazor WebAssembly・クライアント完結）
 
 サーバ不要。初回だけ Rust コアを wasm にビルドします。
+公開版は <https://kanon-server.com/others/unitconv/> です（ブラウザだけで動きます）。
 
 ```sh
 # 1) Rust コアを wasm に（生成物。リポジトリには含めていません）
