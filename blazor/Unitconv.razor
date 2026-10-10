@@ -132,17 +132,13 @@
     }
     unitNames = names.ToList();
 
-    // 接頭辞は「記号(名前)」で 1 件ずつ、記号のアルファベット順に。
-    var entries = new List<(string Symbol, string Text)>();
+    // 接頭辞は「記号(名前)」で 1 件ずつ、名前（アルファベット表記）の順に並べる。
+    var entries = new List<(string Name, string Text)>();
     foreach (PrefixInfo p in prefixes)
     {
-      entries.Add((p.Symbol, $"{p.Symbol}({p.Name})"));
+      entries.Add((p.Name, $"{p.Symbol}({p.Name})"));
     }
-    entries.Sort((a, b) =>
-    {
-      int compare = string.CompareOrdinal(a.Symbol.ToUpperInvariant(), b.Symbol.ToUpperInvariant());
-      return compare != 0 ? compare : string.CompareOrdinal(a.Symbol, b.Symbol);
-    });
+    entries.Sort((a, b) => string.Compare(a.Name, b.Name, StringComparison.OrdinalIgnoreCase));
     prefixTokens = entries.Select(e => e.Text).ToList();
 
     await RunConvert();

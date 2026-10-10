@@ -154,19 +154,14 @@ async function init() {
   const unitList = $('#units');
   [...unitNames].sort().forEach((n) => unitList.appendChild(new Option(n)));
 
-  // 接頭辞は「記号(名前)」で 1 件ずつ、記号のアルファベット順に。
+  // 接頭辞は「記号(名前)」で 1 件ずつ、名前（アルファベット表記）の順に並べる。
   const prefixList = $('#prefixes');
   prefixes
     .map((p) => {
       const symbol = p.symbol ?? p.sym ?? '';
-      return { symbol, text: `${symbol}(${p.name})` };
+      return { name: p.name, text: `${symbol}(${p.name})` };
     })
-    .sort((a, b) => {
-      const au = a.symbol.toUpperCase();
-      const bu = b.symbol.toUpperCase();
-      if (au !== bu) return au < bu ? -1 : 1;
-      return a.symbol < b.symbol ? -1 : a.symbol > b.symbol ? 1 : 0;
-    })
+    .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
     .forEach((e) => prefixList.appendChild(new Option(e.text)));
 
   buildPrefixTable(prefixes);
