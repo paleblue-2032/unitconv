@@ -1,36 +1,36 @@
 # uconv
 
-SI接頭辞（m, µ, p, k, M…）と単位を**爆速で**変換する小さな CLI。
-理系の学生が「1 GiB って何 MB?」「3 GHz は何 MHz?」みたいなのを一瞬で確かめるための道具。
+[unitconv](../README.md) のコアを使った CLI。単位と SI 接頭辞を爆速で変換します。
+同じコアを Web UI（C#）も使うので、変換結果は CLI と完全に一致します。
 
-- **依存クレートゼロ**（`cargo` だけでビルド、ネット不要）。起動は 1ms 程度。
-- 10^n の接頭辞をそのまま扱う（`km` `GHz` `µm` `ms` `kB` `GiB` …）
+- **依存クレートゼロ**（コアは外部クレートを使いません）。起動は 1ms 程度。
+- SI 接頭辞をそのまま扱う（`km` `GHz` `μm` `ms` `kB` `GiB` …）
 - 次元（長さ・質量・時間…）を検査して、`km → lb` のような変換は弾く
 - 温度（`degC` / `degF` / `K`）はアフィン変換として別扱い
-- 結果は「読みやすい接頭辞」でも併記（`0.0000035 m` → `≈ 3.5 µm`）
+- 結果は読みやすい接頭辞でも併記（`0.0000035 m` → `≈ 3.5 μm`）
 
 ## ビルド
 
 ```sh
-cd ~/Projects/unitconv/cli
+cd cli
 cargo build --release      # バイナリは ../target/release/uconv（ワークスペース）
 cargo test                 # 動作テスト
 ```
 
-`rustc` / `cargo` は NixOS の system パッケージ（`modules/packages.nix`）で入れてある。
+ワークスペース全体をビルドするときは、リポジトリのルートで `cargo build --release`。
 
 ## 使い方
 
 ```sh
 uconv 5 km mile          # 3.1068559612 mile
 uconv 3.2 GHz MHz        # 3200 MHz  （≈ 3.2 GHz）
-uconv 0.0000035 m mm     # 0.0035 mm  （≈ 3.5 µm）
+uconv 0.0000035 m mm     # 0.0035 mm  （≈ 3.5 μm）
 uconv 100 degC degF      # 212 °F
 uconv 98.6 degF K        # 310.15 K
 uconv 1 GiB MiB          # 1024 MiB
 uconv 65 mph kph         # 104.60736 kph
 uconv 1 eV J             # 1.602176634e-19 J
-uconv 1/2 cup mL         # 分数もOK（cup は未対応なので数値の例）
+uconv 1/2 m mm           # 分数もOK
 ```
 
 そのほか:
@@ -56,8 +56,8 @@ $ uconv
 
 ## 温度の注意
 
-`C` はクーロン、`F` はファラド、`K` はケルビン。温度として使うときは
-**`degC` / `degF` / `K`**（`°C` / `°F` も可）と書く。
+`C` はクーロン、`F` はファラド、`K` はケルビンです。温度として使うときは
+**`degC` / `degF` / `K`**（`°C` / `°F` も可）と書いてください。
 
 | 書き方 | 意味 |
 | --- | --- |
@@ -71,13 +71,15 @@ $ uconv
 時間 `s min h day wk yr` / 電気 `A C V ohm S F Wb T H` /
 エネルギー `J cal kcal Wh eV` / 仕事率 `W hp` / 圧力 `Pa bar atm mmHg psi` /
 速さ `kph mph kn c` / 振動数 `Hz` / 面積 `ha acre` / 体積 `L gal` /
-情報 `bit B`（`KiB` などの2進接頭辞も） / 放射線 `Bq Gy Sv` …など。
+情報 `bit B`（`KiB` などの2進接頭辞も） / 放射線 `Bq Gy Sv` …ほか。
 
-`--units` で全部見える。
+`uconv --units` で全一覧を表示します。
 
-## 仕組み（簡潔に）
+## 仕組み
 
 1. トークンを「単位そのもの」として照合（`m`→メートル、`min`→分）
-2. ダメなら「接頭辞＋単位」に分解（`GHz`→ G + Hz、`µm`→ µ + m）
-3. 次元ベクトル（m,kg,s,A,K,mol,cd,bit）が一致するか確認して比率で換算
-4. 温度だけは `scale`/`offset` を持つ別表現にし、K を経由して変換
+2. 一致しなければ「接頭辞＋単位」に分解（`GHz`→ G + Hz、`μm`→ μ + m）
+3. 次元ベクトル（m, kg, s, A, K, mol, cd, bit）が一致するか確認して比率で換算
+4. 温度だけは `scale` / `offset` を持つ別表現にし、K を経由して変換
+
+変換ロジックはコア（`../core`）にあり、Web UI と共有しています。

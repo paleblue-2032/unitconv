@@ -30,7 +30,7 @@ fn print_help() {
   例:\n\
     uconv 5 km mile           → 3.1068559612 mile\n\
     uconv 3.2 GHz MHz         → 3200 MHz\n\
-    uconv 0.0000035 m mm      → 0.0035 mm  (≈ 3.5 µm)\n\
+    uconv 0.0000035 m mm      → 0.0035 mm  (≈ 3.5 μm)\n\
     uconv 100 degC degF       → 212 °F\n\
     uconv scale 5 m p         → 5000000000\n\
     uconv 1 GiB MB            → 1073.741824 MB\n\
