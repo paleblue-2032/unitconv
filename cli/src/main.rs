@@ -40,7 +40,7 @@ fn print_help() {
 }
 
 fn print_prefixes() {
-    println!("接頭辞（10^n。Ki〜Ei は 1024^n の2進接頭辞）\n");
+    println!("接頭辞（大きい順。Ki〜Ti は 1024^n の2進接頭辞）\n");
     println!("{:<10} {:<4} {}", "名前", "記号", "倍率");
     for prefix in core::prefix_table() {
         println!("{:<10} {:<4} {:e}", prefix.name, prefix.symbol, prefix.mult);

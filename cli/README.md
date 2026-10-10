@@ -12,8 +12,8 @@ SI接頭辞（m, µ, p, k, M…）と単位を**爆速で**変換する小さな
 ## ビルド
 
 ```sh
-cd ~/Projects/uconv
-cargo build --release      # バイナリは target/release/uconv
+cd ~/Projects/unitconv/cli
+cargo build --release      # バイナリは ../target/release/uconv（ワークスペース）
 cargo test                 # 動作テスト
 ```
 
@@ -38,7 +38,7 @@ uconv 1/2 cup mL         # 分数もOK（cup は未対応なので数値の例�
 ```sh
 uconv scale 5 m p        # 接頭辞スケーリング（5 ミリ → ピコ = 5e9）
 uconv base ff 16         # 進数変換（2 / 8 / 10 / 16 を一気に）
-uconv --prefixes         # 接頭辞の一覧
+uconv --prefixes         # 接頭辞の一覧（大きさ順・micro は μ で表示）
 uconv --units            # 単位の一覧
 uconv                    # 引数なしで対話モード
 ```

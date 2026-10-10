@@ -461,22 +461,43 @@ pub struct PrefixInfo {
     pub mult: f64,
 }
 
-pub fn prefix_table() -> Vec<PrefixInfo> {
-    PREFIX_NAMES
-        .iter()
-        .map(|(name, mult)| PrefixInfo { name, symbol: symbol_for_name(name), mult: *mult })
-        .collect()
-}
+/// 一覧表示用（名前, 記号, 倍率）。記号は SI の定義どおり。
+/// micro は ASCII の "u" ではなくギリシャ文字 μ で見せる。
+const PREFIX_ROWS: &[(&str, &str, f64)] = &[
+    ("yotta", "Y", 1e24),
+    ("zetta", "Z", 1e21),
+    ("exa", "E", 1e18),
+    ("peta", "P", 1e15),
+    ("tera", "T", 1e12),
+    ("giga", "G", 1e9),
+    ("mega", "M", 1e6),
+    ("kilo", "k", 1e3),
+    ("hecto", "h", 1e2),
+    ("deca", "da", 1e1),
+    ("deci", "d", 1e-1),
+    ("centi", "c", 1e-2),
+    ("milli", "m", 1e-3),
+    ("micro", "μ", 1e-6),
+    ("nano", "n", 1e-9),
+    ("pico", "p", 1e-12),
+    ("femto", "f", 1e-15),
+    ("atto", "a", 1e-18),
+    ("zepto", "z", 1e-21),
+    ("yocto", "y", 1e-24),
+    ("kibi", "Ki", 1024.0),
+    ("mebi", "Mi", 1_048_576.0),
+    ("gibi", "Gi", 1_073_741_824.0),
+    ("tebi", "Ti", 1_099_511_627_776.0),
+];
 
-fn symbol_for_name(name: &str) -> &'static str {
-    match name {
-        "yotta" => "Y", "zetta" => "Z", "exa" => "E", "peta" => "P", "tera" => "T",
-        "giga" => "G", "mega" => "M", "kilo" => "k", "hecto" => "h", "deca" | "deka" => "da",
-        "deci" => "d", "centi" => "c", "milli" => "m", "micro" => "µ/u", "nano" => "n",
-        "pico" => "p", "femto" => "f", "atto" => "a", "zepto" => "z", "yocto" => "y",
-        "kibi" => "Ki", "mebi" => "Mi", "gibi" => "Gi", "tebi" => "Ti",
-        _ => "",
-    }
+/// 接頭辞の一覧を大きさ順（大きい順）で返す。
+pub fn prefix_table() -> Vec<PrefixInfo> {
+    let mut rows: Vec<PrefixInfo> = PREFIX_ROWS
+        .iter()
+        .map(|(name, symbol, mult)| PrefixInfo { name, symbol, mult: *mult })
+        .collect();
+    rows.sort_by(|a, b| b.mult.partial_cmp(&a.mult).unwrap_or(std::cmp::Ordering::Equal));
+    rows
 }
 
 /// 接頭辞一覧の JSON。
