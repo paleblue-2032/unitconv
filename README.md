@@ -4,7 +4,7 @@
 変換ロジックは **Rust コア 1 つ**にまとめてあり、**CLI** と **2 種類の Web UI**
 （サーバ型 / クライアント完結）から同じコアを使います。
 
-**デモ:** <https://kanon-server.com/others/unitconv/> （Blazor WebAssembly 版・ブラウザだけで動作）
+**Web 版（Blazor WASM）:** <https://kanon-server.com/others/unitconv/> — ブラウザだけで動きます。
 
 ```sh
 uconv 5 km mile         # 3.1068559612 mile
