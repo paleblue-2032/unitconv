@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>unitconv — 単位・SI接頭辞コンバータ</title>
+<meta name="description" content="単位とSI接頭辞を爆速で変換。C#（ASP.NET Core）製のローカルWebアプリ。">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <h1>unitconv</h1>
+  <p class="sub">単位とSI接頭辞を、パッと変換。ローカルで動きます。</p>
+</header>
+
+<main>
+  <section class="panel">
+    <div class="grid">
+      <label>値<input id="value" type="text" inputmode="decimal" value="5" autocomplete="off"></label>
+      <label>変換前<input id="from" type="text" list="units" value="km" autocomplete="off"></label>
+      <span class="arrow">→</span>
+      <label>変換後<input id="to" type="text" list="units" value="mile" autocomplete="off"></label>
+    </div>
+    <output id="result" class="result">—</output>
+    <p id="error" class="error"></p>
+    <div class="examples">
+      例:
+      <button class="chip" data-ex="5|km|mile">5 km → mile</button>
+      <button class="chip" data-ex="3.2|GHz|MHz">3.2 GHz → MHz</button>
+      <button class="chip" data-ex="1|GiB|MB">1 GiB → MB</button>
+      <button class="chip" data-ex="100|degC|degF">100 °C → °F</button>
+      <button class="chip" data-ex="0.0000035|m|mm">3.5 µm</button>
+      <button class="chip" data-ex="1|eV|J">1 eV → J</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>接頭辞スケーリング</h2>
+    <div class="grid">
+      <label>値<input id="svalue" type="text" inputmode="decimal" value="5" autocomplete="off"></label>
+      <label>変換前<input id="sfrom" type="text" list="prefixes" value="m" autocomplete="off"></label>
+      <span class="arrow">→</span>
+      <label>変換後<input id="sto" type="text" list="prefixes" value="p" autocomplete="off"></label>
+    </div>
+    <output id="sresult" class="result">—</output>
+    <p id="serror" class="error"></p>
+    <p class="muted small">ミリ→ピコ なら 5 → 5e9。接頭辞だけをスケーリングします。</p>
+  </section>
+
+  <details class="ref">
+    <summary>接頭辞の一覧</summary>
+    <div id="preftable" class="table"></div>
+  </details>
+
+  <details class="ref">
+    <summary>単位の一覧</summary>
+    <div id="unittable" class="units"></div>
+  </details>
+</main>
+
+<datalist id="units"></datalist>
+<datalist id="prefixes"></datalist>
+
+<footer class="foot">C# / ASP.NET Core 製 · http://127.0.0.1:5080</footer>
+<script src="app.js"></script>
+</body>
+</html>

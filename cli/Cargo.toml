@@ -1,0 +1,15 @@
+[package]
+name = "uconv"
+version = "0.1.0"
+edition = "2021"
+description = "SI接頭辞と単位を爆速で変換する小さな CLI（依存ゼロ）"
+
+[[bin]]
+name = "uconv"
+path = "src/main.rs"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"

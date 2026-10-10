@@ -1,0 +1,9 @@
+# Rust
+cli/target/
+
+# .NET
+web/bin/
+web/obj/
+
+# その他
+result
