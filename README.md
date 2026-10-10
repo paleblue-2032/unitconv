@@ -4,6 +4,8 @@
 変換ロジックは **Rust コア 1 つ**にまとめてあり、**CLI** と **2 種類の Web UI**
 （サーバ型 / クライアント完結）から同じコアを使います。
 
+**デモ:** <https://kanon-server.com/others/unitconv/> （Blazor WebAssembly 版・ブラウザだけで動作）
+
 ```sh
 uconv 5 km mile         # 3.1068559612 mile
 uconv 3.2 GHz MHz       # 3200 MHz   （≈ 3.2 GHz）
@@ -36,31 +38,39 @@ core/ ──(lib)────────────────▶ cli/    (uc
 
 ## 必要なもの
 
-- **Rust ツールチェーン**（`cargo` / `rustc`）
-- **.NET SDK 8**（`web/` と `blazor/` を使う場合）
-- wasm をビルドする場合は **wasm32-unknown-unknown ターゲット**と **`wasm-ld`**（LLVM `lld` 同梱）
+- **Rust ツールチェーン**（`cargo` / `rustc`）— コア・CLI に必須
+- **.NET SDK 8** — `web/` と `blazor/` を使う場合
+- **`wasm32-unknown-unknown` ターゲット と `wasm-ld`** — Blazor 版の wasm をビルドする場合
 
 ```sh
-# 例（rustup を使う場合）
+# Rust の wasm ターゲットを追加
 rustup target add wasm32-unknown-unknown
-# wasm-ld は lld に同梱: Debian/Ubuntu は `apt install lld`、NixOS は `nix-shell -p lld`
+# wasm-ld は LLVM の lld に同梱（例: apt install lld / brew install llvm）
 ```
 
-## クイックスタート
+## インストール
 
-### CLI
+### CLI（`uconv`）
 
 ```sh
-cd cli
-cargo run --release -- 3.2 GHz MHz      # 3200 MHz  （≈ 3.2 GHz）
-cargo build --release                   # バイナリは ../target/release/uconv
+git clone <このリポジトリ>
+cd unitconv
+
+cargo install --path cli     # ~/.cargo/bin/uconv に入ります
+uconv 5 km mile
+```
+
+ビルドだけして直接使う場合:
+
+```sh
+cargo build --release        # バイナリは target/release/uconv
 ```
 
 ### Web（ASP.NET Core・サーバ型）
 
 ```sh
 cd web
-dotnet run          # → http://127.0.0.1:5080
+dotnet run                   # → http://127.0.0.1:5080
 ```
 
 `dotnet build` 時に Rust コアを `cargo build --release` でビルドし、
@@ -84,10 +94,10 @@ dotnet publish -c Release -o publish
 ### テスト
 
 ```sh
-cargo test          # リポジトリのルートで
+cargo test                   # リポジトリのルートで
 ```
 
-## CLI の使い方
+## 使い方（CLI）
 
 ```sh
 uconv <値> <変換前> <変換後>      # 単位変換（接頭辞つき）
