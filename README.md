@@ -137,7 +137,3 @@ C ABI の関数は `unitconv_convert` / `unitconv_scale` / `unitconv_prefixes` /
 2. 一致しなければ「接頭辞＋単位」に分解（`GHz`→ G + Hz、`μm`→ μ + m）
 3. 次元ベクトル（m, kg, s, A, K, mol, cd, bit）が一致するか確認して比率で換算
 4. 温度だけは `scale` / `offset` を持つ別表現にし、K を経由して変換
-
-## ライセンス
-
-MIT（[LICENSE](LICENSE)）
