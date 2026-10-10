@@ -27,6 +27,12 @@ function fmtNum(x) {
   return `${m}×10${superscript(parseInt(exponent, 10))}`;
 }
 
+// 「μ(micro)」のような補足つきの入力を、括弧より前だけにして渡す。
+function clean(token) {
+  const index = token.search(/[（(]/);
+  return (index >= 0 ? token.slice(0, index) : token).trim();
+}
+
 async function jget(url) {
   const response = await fetch(url);
   return response.json();
@@ -42,8 +48,8 @@ function debounce(fn, ms) {
 
 async function runConvert() {
   const value = $('#value').value.trim();
-  const from = $('#from').value.trim();
-  const to = $('#to').value.trim();
+  const from = clean($('#from').value);
+  const to = clean($('#to').value);
   const out = $('#result');
   const error = $('#error');
   error.textContent = '';
@@ -66,8 +72,8 @@ async function runConvert() {
 
 async function runScale() {
   const value = $('#svalue').value.trim();
-  const from = $('#sfrom').value.trim();
-  const to = $('#sto').value.trim();
+  const from = clean($('#sfrom').value);
+  const to = clean($('#sto').value);
   const out = $('#sresult');
   const error = $('#serror');
   error.textContent = '';
@@ -136,21 +142,24 @@ function buildUnitTable(units) {
 async function init() {
   const [units, prefixes] = await Promise.all([jget('/api/units'), jget('/api/prefixes')]);
 
+  // 単位はアルファベット順。
   const unitNames = new Set();
   units.forEach((u) => {
     unitNames.add(u.name);
     u.aliases.forEach((a) => unitNames.add(a));
   });
-  ['km', 'cm', 'mm', 'µm', 'nm', 'ms', 'µs', 'ns', 'GHz', 'MHz', 'kHz',
+  ['km', 'cm', 'mm', 'μm', 'nm', 'ms', 'μs', 'ns', 'GHz', 'MHz', 'kHz',
     'kB', 'MB', 'GB', 'TB', 'KiB', 'MiB', 'GiB', 'kJ', 'kcal', 'keV', 'MeV',
     'mV', 'kPa', 'degC', 'degF', 'K'].forEach((n) => unitNames.add(n));
   const unitList = $('#units');
   [...unitNames].sort().forEach((n) => unitList.appendChild(new Option(n)));
 
+  // 接頭辞もアルファベット順。micro はギリシャ文字に名前を添えて μ(micro)。
   const prefixNames = new Set();
   prefixes.forEach((p) => {
+    const symbol = p.symbol ?? p.sym ?? '';
+    prefixNames.add(p.name === 'micro' ? `${symbol}(${p.name})` : symbol);
     prefixNames.add(p.name);
-    String(p.symbol ?? p.sym ?? '').split('/').forEach((s) => { if (s) prefixNames.add(s); });
   });
   const prefixList = $('#prefixes');
   [...prefixNames].sort().forEach((n) => prefixList.appendChild(new Option(n)));

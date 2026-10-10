@@ -87,7 +87,7 @@
   }
 </datalist>
 <datalist id="prefixes">
-  @foreach (string name in prefixNames)
+  @foreach (string name in prefixTokens)
   {
     <option value="@name"></option>
   }
@@ -110,7 +110,7 @@
   private List<PrefixInfo> prefixes = new();
   private List<UnitInfo> units = new();
   private List<string> unitNames = new();
-  private List<string> prefixNames = new();
+  private List<string> prefixTokens = new();
 
   protected override async Task OnInitializedAsync()
   {
@@ -126,19 +126,20 @@
       names.Add(u.Name);
       foreach (string alias in u.Aliases) names.Add(alias);
     }
-    foreach (string extra in new[] { "km", "cm", "mm", "μm", "nm", "ms", "μs", "ns", "GHz", "MHz", "kHz", "kB", "MB", "GB", "TB", "KiB", "MiB", "GiB", "kJ", "kcal", "keV", "MeV", "mV", "kPa", "degC", "degF", "K" })
+    foreach (string extra in new[] { "km", "cm", "mm", "µm", "nm", "ms", "µs", "ns", "GHz", "MHz", "kHz", "kB", "MB", "GB", "TB", "KiB", "MiB", "GiB", "kJ", "kcal", "keV", "MeV", "mV", "kPa", "degC", "degF", "K" })
     {
       names.Add(extra);
     }
     unitNames = names.ToList();
 
-    var prefNames = new SortedSet<string>();
+    // 接頭辞はアルファベット順。micro はギリシャ文字に名前を添えて μ(micro)。
+    var tokens = new SortedSet<string>();
     foreach (PrefixInfo p in prefixes)
     {
-      prefNames.Add(p.Name);
-      foreach (string symbol in p.Symbol.Split('/')) prefNames.Add(symbol);
+      tokens.Add(p.Name == "micro" ? $"{p.Symbol}({p.Name})" : p.Symbol);
+      tokens.Add(p.Name);
     }
-    prefixNames = prefNames.ToList();
+    prefixTokens = tokens.ToList();
 
     await RunConvert();
     await RunScale();
@@ -147,13 +148,13 @@
   private async Task RunConvert()
   {
     if (module is null) return;
-    result = Parse<ConvertResult>(await module.InvokeAsync<string>("convert", value, from, to));
+    result = Parse<ConvertResult>(await module.InvokeAsync<string>("convert", value, Clean(from), Clean(to)));
   }
 
   private async Task RunScale()
   {
     if (module is null) return;
-    sresult = Parse<ConvertResult>(await module.InvokeAsync<string>("scale", svalue, sfrom, sto));
+    sresult = Parse<ConvertResult>(await module.InvokeAsync<string>("scale", svalue, Clean(sfrom), Clean(sto)));
   }
 
   private async Task SwapConvert()
@@ -166,6 +167,14 @@
   {
     (sfrom, sto) = (sto, sfrom);
     await RunScale();
+  }
+
+  /// <summary>「μ(micro)」のような補足つきの入力を、括弧より前だけにして渡す。</summary>
+  private static string Clean(string token)
+  {
+    if (string.IsNullOrEmpty(token)) return token;
+    int index = token.IndexOfAny(new[] { '(', '（' });
+    return (index >= 0 ? token[..index] : token).Trim();
   }
 
   private static T? Parse<T>(string json)
