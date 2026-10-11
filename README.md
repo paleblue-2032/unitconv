@@ -179,4 +179,4 @@ Blazor 版は JavaScript interop 経由で wasm として、それぞれ同じ�
 
 ## ライセンス
 
-MIT（[LICENSE](LICENSE)）
+[MIT](LICENSE) © 2026 paleblue-2032
